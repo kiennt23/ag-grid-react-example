@@ -89,12 +89,12 @@ class Grid extends React.Component<AgGridReactProps, AppState> {
             })
     }
 
-    onButtonClick = (e: MouseEvent) => {
+    onButtonClick = () => {
         let selectedNodes = this.gridApi.getSelectedNodes();
         let selectedData = selectedNodes.map(node => node.data);
         let selectedDataString = selectedData.map(node => node[this.rowId]).join(', ');
         alert(`Selected nodes: ${selectedDataString}`);
-    }
+    };
 
     getRowNodeId = (data: any) => {
         return data && data[this.rowId];
