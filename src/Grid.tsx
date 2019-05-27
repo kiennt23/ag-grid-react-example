@@ -1,5 +1,4 @@
 import * as React from 'react';
-import {MouseEvent} from 'react';
 import './App.css';
 import {AgGridReact, AgGridReactProps} from 'ag-grid-react';
 import {ColDef, GridApi, IDatasource, IGetRowsParams} from 'ag-grid-community';
