@@ -13,9 +13,10 @@ export interface AppState {
 }
 
 class Grid extends React.Component<AgGridReactProps, AppState> {
+    rowId: string;
+    apiKey!: string;
     gridApi!: GridApi;
     dataSource!: IDatasource;
-    rowId: string;
 
     constructor(props: AgGridReactProps) {
         super(props);
@@ -31,8 +32,8 @@ class Grid extends React.Component<AgGridReactProps, AppState> {
         };
         this.rowId = "field0";
         this.dataSource = {
-            getRows: async function(params: IGetRowsParams): Promise<void> {
-                let response = await fetch('https://www.quandl.com/api/v3/datasets/UMICH/SOC46');
+            getRows: async (params: IGetRowsParams): Promise<void> => {
+                let response = await fetch('https://www.quandl.com/api/v3/datasets/UMICH/SOC46?api_key=' + this.apiKey);
                 let jsonData = await response.json();
                 let {data} = jsonData.dataset;
                 let {startRow, endRow} = params;
@@ -74,7 +75,7 @@ class Grid extends React.Component<AgGridReactProps, AppState> {
     }
 
     componentDidMount(): void {
-        fetch('https://www.quandl.com/api/v3/datasets/UMICH/SOC46/metadata.json')
+        fetch('https://www.quandl.com/api/v3/datasets/UMICH/SOC46/metadata.json?api_key=' + this.apiKey)
             .then(result => result.json())
             .then(jsonData => {
                 let {column_names: columnNames} = jsonData.dataset;
