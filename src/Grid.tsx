@@ -56,7 +56,7 @@ class Grid extends React.Component<AgGridReactProps, AppState> {
 
     render() {
         return (
-            <div className="Grid ag-theme-balham-dark" style={{height: '100%', width: '600px'}}>
+            <div className="Grid ag-theme-balham-dark" style={{height: '100%', width: '100%'}}>
                 <button onClick={this.onButtonClick}>Get selected rows</button>
                 <AgGridReact
                     defaultColDef={this.state.defaultColDef}
