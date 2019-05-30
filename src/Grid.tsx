@@ -19,6 +19,7 @@ class Grid extends React.Component<AgGridReactProps, AppState> {
 
     constructor(props: AgGridReactProps) {
         super(props);
+        LicenseManager.setLicenseKey("Peace_OTY2OTQ1OTQ1Njk3Mw==7e213e88aef89910e528cf77b5ac1af0");
         this.state = {
             defaultColDef: {
                 width: 150,
