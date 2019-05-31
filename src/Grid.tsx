@@ -1,12 +1,13 @@
 import * as React from 'react';
 import './App.css';
 import {AgGridReact, AgGridReactProps} from 'ag-grid-react';
-import {ColDef, GridApi, IDatasource, IGetRowsParams} from 'ag-grid-community';
+import {CellValueChangedEvent, ColDef, GetMainMenuItemsParams, GridApi} from 'ag-grid-community';
+import {LicenseManager} from "ag-grid-enterprise";
 import 'ag-grid-community/dist/styles/ag-grid.css';
-import 'ag-grid-community/dist/styles/ag-theme-balham-dark.css';
-import {LoadingCellRenderer} from "ag-grid-community/dist/lib/rendering/cellRenderers/loadingCellRenderer";
+import 'ag-grid-community/dist/styles/ag-theme-balham.css';
 
 export interface GridState {
+    rowData?: any[];
     defaultColDef?: ColDef;
     columnDefs?: ColDef[];
 }
@@ -15,7 +16,6 @@ class Grid extends React.Component<AgGridReactProps, GridState> {
     rowId: string;
     apiKey!: string;
     gridApi!: GridApi;
-    dataSource!: IDatasource;
 
     constructor(props: AgGridReactProps) {
         super(props);
@@ -23,62 +23,52 @@ class Grid extends React.Component<AgGridReactProps, GridState> {
         this.state = {
             defaultColDef: {
                 width: 150,
+                editable: true,
+                menuTabs: ['generalMenuTab', 'filterMenuTab'],
                 checkboxSelection: (params) => {
                     let displayedColumns = params.columnApi.getAllDisplayedColumns();
                     return displayedColumns[0] === params.column;
-                }
+                },
+                filter: true,
+                sortable: true,
+                enablePivot: true,
+                enableValue: true,
+                enableRowGroup: true,
+                resizable: true
             },
             columnDefs: []
         };
         this.rowId = "field0";
-        this.dataSource = {
-            getRows: async (params: IGetRowsParams): Promise<void> => {
-                let response = await fetch('https://www.quandl.com/api/v3/datasets/UMICH/SOC46?api_key=' + this.apiKey);
-                let jsonData = await response.json();
-                let {data} = jsonData.dataset;
-                let {startRow, endRow} = params;
-                let rowsThisPage = data.slice(startRow, endRow);
-                let rowData: any[] = rowsThisPage.map((row: string[]) => {
-                    let rowObj: any = {};
-                    row.forEach((value: string, index: number) => {
-                        rowObj[`field${index}`] = value;
-                    });
-                    return rowObj;
-                });
-                let lastRow = -1;
-                if (data.length <= endRow) {
-                    lastRow = data.length;
-                }
-                params.successCallback(rowData, lastRow);
-            }
-        };
+        this.apiKey = "N3ct2xmC4dg-bEpGhDp1";
     }
 
     render() {
         return (
             <div className="Grid ag-theme-balham" style={{height: '100%', width: '100%'}}>
-                <button onClick={this.onButtonClick}>Get selected rows</button>
+                <button onClick={this.buttonClickHandler}>Get selected rows</button>
                 <AgGridReact
-                    defaultColDef={this.state.defaultColDef}
-                    columnDefs={this.state.columnDefs}
-                    getRowNodeId={this.getRowNodeId}
-                    datasource={this.dataSource}
-                    rowModelType="infinite"
                     rowSelection="multiple"
-                    loadingCellRenderer={LoadingCellRenderer}
+                    sideBar={true}
                     animateRows={true}
                     deltaRowDataMode
-                    onGridReady={(params) => this.gridApi = params.api}>
+                    reactNext={true}
+                    defaultColDef={this.state.defaultColDef}
+                    columnDefs={this.state.columnDefs}
+                    rowData={this.state.rowData}
+                    getRowNodeId={this.getRowNodeId}
+                    onGridReady={(params) => this.gridApi = params.api}
+                    onCellValueChanged={this.cellValueChangedHandler}
+                    getMainMenuItems={this.getMainMenuItems}>
                 </AgGridReact>
             </div>
         );
     }
 
     componentDidMount(): void {
-        fetch('https://www.quandl.com/api/v3/datasets/UMICH/SOC46/metadata.json?api_key=' + this.apiKey)
+        fetch('https://www.quandl.com/api/v3/datasets/UMICH/SOC46?api_key=' + this.apiKey)
             .then(result => result.json())
             .then(jsonData => {
-                let {column_names: columnNames} = jsonData.dataset;
+                let {column_names: columnNames, data} = jsonData.dataset;
                 let columnDefs = columnNames.map((columnName: string, index: number) => {
                     let colDef: ColDef = {
                         headerName: columnName,
@@ -86,20 +76,35 @@ class Grid extends React.Component<AgGridReactProps, GridState> {
                     };
                     return colDef;
                 });
-                this.setState({columnDefs: columnDefs});
+                let rowData: any[] = data.map((row: string[]) => {
+                    let rowObj: any = {};
+                    row.forEach((value: string, index: number) => {
+                        rowObj[`field${index}`] = value;
+                    });
+                    return rowObj;
+                });
+                this.setState({columnDefs: columnDefs, rowData: rowData});
             })
     }
 
-    onButtonClick = () => {
+    buttonClickHandler = () => {
         let selectedNodes = this.gridApi.getSelectedNodes();
         let selectedData = selectedNodes.map(node => node.data);
         let selectedDataString = selectedData.map(node => node[this.rowId]).join(', ');
         alert(`Selected nodes: ${selectedDataString}`);
     };
 
+    cellValueChangedHandler = (event: CellValueChangedEvent) => {
+        console.log(event.data);
+    };
+
     getRowNodeId = (data: any) => {
         return data && data[this.rowId];
     };
+
+    getMainMenuItems = (params: GetMainMenuItemsParams) => {
+        return ['pinSubMenu', 'separator', 'autoSizeThis', 'autoSizeAll', 'separator', 'rowGroup', 'rowUnGroup'];
+    }
 }
 
 export default Grid;
