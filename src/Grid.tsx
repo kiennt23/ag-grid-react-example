@@ -6,12 +6,12 @@ import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-balham-dark.css';
 import {LoadingCellRenderer} from "ag-grid-community/dist/lib/rendering/cellRenderers/loadingCellRenderer";
 
-export interface AppState {
+export interface GridState {
     defaultColDef?: ColDef;
     columnDefs?: ColDef[];
 }
 
-class Grid extends React.Component<AgGridReactProps, AppState> {
+class Grid extends React.Component<AgGridReactProps, GridState> {
     rowId: string;
     apiKey!: string;
     gridApi!: GridApi;
@@ -56,7 +56,7 @@ class Grid extends React.Component<AgGridReactProps, AppState> {
 
     render() {
         return (
-            <div className="Grid ag-theme-balham-dark" style={{height: '100%', width: '100%'}}>
+            <div className="Grid ag-theme-balham" style={{height: '100%', width: '100%'}}>
                 <button onClick={this.onButtonClick}>Get selected rows</button>
                 <AgGridReact
                     defaultColDef={this.state.defaultColDef}
